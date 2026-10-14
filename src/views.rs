@@ -324,16 +324,21 @@ pub fn compile(
             continue;
         }
         let mut columns = Vec::new();
-        for c in &cfg.columns {
+        for (i, c) in cfg.columns.iter().enumerate() {
             let header = c.name.trim().to_uppercase();
+            let label = if header.is_empty() {
+                format!("#{}", i + 1)
+            } else {
+                header.clone()
+            };
+            for field in c.unknown_fields.keys() {
+                warnings.push(format!(
+                    "views.\"{key}\": column {label}: unknown key '{field}' ignored"
+                ));
+            }
             if header.is_empty() {
                 warnings.push(format!("views.\"{key}\": column with empty name skipped"));
                 continue;
-            }
-            for field in c.unknown_fields.keys() {
-                warnings.push(format!(
-                    "views.\"{key}\": column {header}: unknown key '{field}' ignored"
-                ));
             }
             let mut kind = match c.kind.as_deref() {
                 None | Some("text") => ColumnKind::Text,
@@ -1586,6 +1591,27 @@ mod tests {
         let (views, warnings) = compile(&cfg.views);
         assert_eq!(views["pods"].columns.len(), 1);
         assert_eq!(warnings, ["views.\"pods\": unknown key 'colums' ignored"]);
+    }
+
+    #[test]
+    fn misspelled_column_name_key_is_reported_by_position() {
+        let (views, warnings) = compile_toml(
+            r#"
+            [views.pods]
+            columns = [
+                { name = "NODE", path = "/spec/nodeName" },
+                { naem = "IP", path = "/status/podIP" },
+            ]
+            "#,
+        );
+        assert_eq!(views["pods"].columns.len(), 1);
+        assert_eq!(
+            warnings,
+            [
+                "views.\"pods\": column #2: unknown key 'naem' ignored",
+                "views.\"pods\": column with empty name skipped",
+            ]
+        );
     }
 
     #[test]
