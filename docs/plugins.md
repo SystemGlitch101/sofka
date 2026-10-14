@@ -166,7 +166,7 @@ dangerous = true          # confirm (showing the exact command) first
 
 - **Placeholders** are substituted as whole arguments, never spliced into a shell
   string: `$NAME`, `$NAMESPACE`/`$NS`, `$CONTEXT`, `$CLUSTER`, `$RESOURCE`
-  (plural), `$GROUP`, `$VERSION`, `$KIND`, `$FILTER`.
+  (plural), `$GROUP`, `$VERSION`, `$KIND`, `$FILTER`, `$SKIN`
 - **`output`** selects `terminal`, `popup`, `background`, or `report`.
   `terminal` is the default. It suspends the TUI for an interactive command.
   On Unix, Ctrl-C interrupts the command. Sofka resumes when the command exits.

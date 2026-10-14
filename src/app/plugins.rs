@@ -272,6 +272,7 @@ impl App {
         let cluster = self.cluster.cluster_name.clone();
         let res = self.kind_plural.clone();
         let filter = self.filter.clone();
+        let skin = self.active_skin.clone().unwrap_or_default();
         let (group, version, kind) = self
             .kind
             .as_ref()
@@ -314,6 +315,7 @@ impl App {
                         .replace("$VERSION", &version)
                         .replace("$KIND", &kind)
                         .replace("$FILTER", &filter)
+                        .replace("$SKIN", &skin)
                 };
                 let mut argv = if plugin.shell {
                     vec![
